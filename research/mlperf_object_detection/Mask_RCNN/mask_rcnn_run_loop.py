@@ -135,7 +135,7 @@ def main(_):
   if train_config.num_steps:
     #total_num_epochs = train_config.num_steps
     #train_config.num_steps = FLAGS.epochs_between_evals
-    total_training_cycle = train_config.num_steps // train_config.num_steps
+    total_training_cycle = train_config.num_steps // FLAGS.epochs_between_evals
   else:
     # TODO(mehdi): make it run indef
     train_config.num_steps = 20000000
