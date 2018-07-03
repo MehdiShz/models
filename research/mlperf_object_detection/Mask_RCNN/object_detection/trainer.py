@@ -399,9 +399,10 @@ def train(create_tensor_dict_fn,
       init_fn = initializer_fn
 
     # set the number_of_steps according to the current step
-    number_of_steps = math_ops.add(global_step, epochs_between_evals)
+    number_of_steps = tf.cast(global_step, "int32") + epochs_between_evals
+
     if train_config.num_steps:
-      if not tf.greater_equal(train_config.num_steps, tf.cast(number_of_steps, "int32")):
+      if train_config.num_steps < number_of_steps:
         number_of_steps = train_config.num_steps
 
     slim.learning.train(
