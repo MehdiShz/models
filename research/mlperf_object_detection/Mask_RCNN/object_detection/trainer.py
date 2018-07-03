@@ -22,6 +22,7 @@ DetectionModel.
 import functools
 
 import tensorflow as tf
+from tensorflow.python.ops import math_ops
 
 from object_detection.builders import optimizer_builder
 from object_detection.builders import preprocessor_builder
@@ -205,6 +206,7 @@ def _create_losses(input_queue, create_model_fn, train_config):
 def train(create_tensor_dict_fn,
           create_model_fn,
           train_config,
+          epochs_between_evals,
           master,
           task,
           num_clones,
@@ -222,6 +224,8 @@ def train(create_tensor_dict_fn,
     create_model_fn: a function that creates a DetectionModel and generates
                      losses.
     train_config: a train_pb2.TrainConfig protobuf.
+    epochs_between_evals: Number of training epochs to run each time this
+      function is called. If None this will be set to train_config.num_steps.
     master: BNS name of the TensorFlow master to use.
     task: The task id of this training instance.
     num_clones: The number of clones to run per machine.
@@ -394,6 +398,12 @@ def train(create_tensor_dict_fn,
         init_saver.restore(sess, train_config.fine_tune_checkpoint)
       init_fn = initializer_fn
 
+    # set the number_of_steps according to the current step
+    number_of_steps = math_ops.add(global_step, epochs_between_evals)
+    if train_config.num_steps:
+      if not math_ops.greater_equal(train_config.number_steps, number_of_steps):
+        number_of_steps = train_config.num_steps
+
     slim.learning.train(
         train_tensor,
         logdir=train_dir,
@@ -403,8 +413,7 @@ def train(create_tensor_dict_fn,
         startup_delay_steps=train_config.startup_delay_steps,
         init_fn=init_fn,
         summary_op=summary_op,
-        number_of_steps=(
-            train_config.num_steps if train_config.num_steps else None),
+        number_of_steps=number_of_steps,
         save_summaries_secs=120,
         sync_optimizer=sync_optimizer,
         saver=saver)
