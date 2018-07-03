@@ -214,7 +214,9 @@ def main(_):
   def train():
     return trainer.train(create_tensor_dict_fn=train_input_dict_fn,
                          create_model_fn=train_model_fn,
-                         train_config=train_config, master=master, task=task,
+                         train_config=train_config,
+                         epochs_between_evals=FLAGS.epochs_between_evals,
+                         master=master, task=task,
                          num_clones=FLAGS.num_clones,
                          worker_replicas=worker_replicas,
                          clone_on_cpu=FLAGS.clone_on_cpu,
