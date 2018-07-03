@@ -401,7 +401,7 @@ def train(create_tensor_dict_fn,
     # set the number_of_steps according to the current step
     number_of_steps = math_ops.add(global_step, epochs_between_evals)
     if train_config.num_steps:
-      if not math_ops.greater_equal(train_config.number_steps, number_of_steps):
+      if not math_ops.greater_equal(train_config.num_steps, number_of_steps):
         number_of_steps = train_config.num_steps
 
     slim.learning.train(
