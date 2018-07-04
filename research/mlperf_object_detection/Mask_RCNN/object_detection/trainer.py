@@ -410,7 +410,7 @@ def train(create_tensor_dict_fn,
         startup_delay_steps=train_config.startup_delay_steps,
         init_fn=init_fn,
         summary_op=summary_op,
-        number_of_steps=number_of_steps,
+        number_of_steps=epochs_between_evals,
         save_summaries_secs=120,
         sync_optimizer=sync_optimizer,
         saver=saver)
