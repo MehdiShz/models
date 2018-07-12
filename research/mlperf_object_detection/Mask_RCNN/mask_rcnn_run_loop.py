@@ -73,6 +73,23 @@ flags.DEFINE_integer('epochs_between_evals', 1, 'Number of training epochs to '
                                                  'run before running eval.')
 FLAGS = flags.FLAGS
 
+def rename(checkpoint_dir, new_checkpoint_dir, add_prefix='SecondStageFeatureExtractor/'):
+  # add prefix to all of the variable names in the checkpoint
+  checkpoint = tf.train.get_checkpoint_state(checkpoint_dir)
+  with tf.Session() as sess:
+    for var_name, _ in tf.contrib.framework.list_variables(checkpoint_dir):
+      # Load the variable
+      var = tf.contrib.framework.load_variable(checkpoint_dir, var_name)
+      # Set the new name
+      new_name = var_name
+      if add_prefix:
+        new_name = add_prefix + new_name
+      var = tf.Variable(var, name=new_name)
+    # Save the variables
+    saver = tf.train.Saver()
+    sess.run(tf.global_variables_initializer())
+    saver.save(sess, new_checkpoint_dir)
+
 
 def stopping_criteria_met(eval_metrics, mask_min_ap, box_min_ap):
   """Returns true if both of the min precision criteria are met in the given
